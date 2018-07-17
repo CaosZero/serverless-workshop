@@ -37,7 +37,7 @@ From the AWS panel create a User called `bologna-js` that has access to the `Adm
 
 ![07](./assets/images/07.png)
 
-#### Add the profile in your `~/.aws/certificate` file
+#### Add the profile in your `~/.aws/credentials` file
 
 ```
 [default]
