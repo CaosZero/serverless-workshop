@@ -1,7 +1,9 @@
+// AWS_PROFILE=bologna-js node utils/scripts.js
+
 const AWS = require('aws-sdk')
 const uuidv1 = require('uuid/v1')
 const config = require('../config/deployValues')
-const tableName = 'todo-bologna-js-dev'
+const tableName = 'todo-bologna-js-dynamo'
 const dynamoDb = new AWS.DynamoDB({
   apiVersion: '2012-08-10',
   region: config.region

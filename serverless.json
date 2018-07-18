@@ -5,6 +5,115 @@
     "runtime": "nodejs8.10",
     "stage": "dev",
     "region": "eu-west-1",
-    "profile": "bologna-js"
+    "profile": "bologna-js",
+    "plugins": [
+      "servless-stack-output"
+    ],
+    "custom": {
+      "output": {
+        "file": "config/stack.json"
+      }
+    },
+    "environment": {
+      "DYNAMODB_TABLE": "todo-bologna-js-dynamo"
+    },
+    "iamRoleStatements": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "dynamodb:*"
+        ],
+        "Resource": "*"
+      }
+    ]
+  },
+  "functions": {
+    "getlist": {
+      "handler": "src/lambda.getList",
+      "events": [
+        {
+          "http": {
+            "path": "/todos",
+            "method": "any",
+            "cors": true
+          }
+        },
+        {
+          "http": {
+            "path": "/todos/{proxy+}",
+            "method": "any",
+            "cors": true
+          }
+        }
+      ]
+    }
+  },
+  "resources": {
+    "Resources": {
+      "ToDoDynamoTable": {
+        "Type": "AWS::DynamoDB::Table",
+        "DeletionPolicy": "Delete",
+        "Properties": {
+          "AttributeDefinitions": [
+            {
+              "AttributeName": "UserIdentifier",
+              "AttributeType": "S"
+            },
+            {
+              "AttributeName": "Id",
+              "AttributeType": "S"
+            }
+          ],
+          "KeySchema": [
+            {
+              "AttributeName": "UserIdentifier",
+              "KeyType": "HASH"
+            },
+            {
+              "AttributeName": "Id",
+              "KeyType": "RANGE"
+            }
+          ],
+          "GlobalSecondaryIndexes": [
+            {
+              "IndexName": "UUIDIndex",
+              "KeySchema": [
+                {
+                  "AttributeName": "Id",
+                  "KeyType": "HASH"
+                }
+              ],
+              "Projection": {
+                "ProjectionType": "ALL"
+              },
+              "ProvisionedThroughput": {
+                "ReadCapacityUnits": 1,
+                "WriteCapacityUnits": 1
+              }
+            }
+          ],
+          "ProvisionedThroughput": {
+            "ReadCapacityUnits": 1,
+            "WriteCapacityUnits": 1
+          },
+          "TableName": "${self:provider.environment.DYNAMODB_TABLE}"
+        }
+      }
+    },
+    "Outputs": {
+      "DynamoTable": {
+        "value": {
+          "Ref": "ToDoDynamoTable"
+        }
+      },
+      "DynamoTableArn": {
+        "value": {
+          "Fn::GetAtt": [
+            "ToDoDynamoTable",
+            "Arn"
+          ]
+        }
+      }
+    }
   }
 }
